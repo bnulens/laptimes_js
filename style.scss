@@ -1,0 +1,42 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Formula1', 'sans-serif';
+}
+*:focus {
+    outline: none;
+}
+
+// Color variables
+
+// -> Utility Colors
+$grey: rgb(171, 171, 171);
+$good: rgb(0, 255, 17);
+$bad:rgb(255, 0, 0);
+$best: rgb(160, 0, 160);
+
+// -> Driver Colors
+$Brecht: #001eff;
+$Wout: #ffae00;
+$Gert: #00ffe5;
+$ghost: #00000000;
+
+body {
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+    background-image: linear-gradient(rgb(0, 6, 26), rgb(1, 1, 1));
+    height: 100vh;
+    main {
+        display: flex;
+        align-items: center;
+        width: 80%;
+        canvas#timingChart {
+            display: block;
+            overflow: visible;
+            // border: solid 1px yellow;
+        }
+    }
+}
