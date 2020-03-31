@@ -5,7 +5,7 @@ const brechtData = [];
 const lapTimesBrecht = [];
 
 const woutData = [];
-const lapTimesWout = []
+const lapTimesWout = [];
 
 const gertData = [];
 const lapTimesGert = [];
@@ -17,7 +17,7 @@ Chart.defaults.global.defaultFontColor = '#999';
 
 drawChart();
 async function getData() {
-    const timeSheet = await fetch('100_mijl_aug_2018.csv');
+    const timeSheet = await fetch('100_mijl_aug_2018.csv', { mode: "no-cors"});
     const timingData = await timeSheet.text();
 
     const timeRows = timingData.split('\n').slice(1, -1);
@@ -31,31 +31,30 @@ async function getData() {
         gertData.push(row[3]);
     });
     
-    driverData.push(brechtData, woutData, gertData)
+    driverData.push(brechtData, woutData, gertData);
 
+    function toMilli(i){
+        const regExTime = /([0-9]?[0-9]):([0-9][0-9]).([0-9][0-9][0-9])/;
+        const regExTimeArr = regExTime.exec(i);
+        const timeMin = parseInt(regExTimeArr[1] * 60 * 1000, 10);
+        const timeSec = parseInt(regExTimeArr[2] * 1000, 10);
+        const timeMms = parseInt(regExTimeArr[3], 10);
+        const totalMms = timeMin + timeSec + timeMms;
+        return totalMms
+    }
+    
     for (i = 0; i < driverData.length; i++) {
         // console.log(driverData[i])
         let innerArrayLength = driverData[i].length;
         for (j = 0; j < innerArrayLength; j++) {
-            toMilli(driverData[i][j])
+            driverData[i][j] = toMilli(driverData[i][j])
         }
     }
-
-    function toMilli(i){
-        const regExTime = /([0-9]?[0-9]):([0-9][0-9]).([0-9][0-9])/;
-        const regExTimeArr = regExTime.exec(i);
-        const timeMin = regExTimeArr[1] * 60 * 1000;
-        const timeSec = regExTimeArr[2] * 1000;
-        const timeMms = regExTimeArr[3];
-        const totalMms = timeMin + timeSec + timeMms;
-        console.log(totalMms)
-        return totalMms
-    }
-    
+    return driverData
 } 
 
 async function drawChart() {
-    await getData();
+    const driverData = await getData();
     
     const ctx = document.getElementById('timingChart').getContext('2d');
     const timeFormat = 'mm:ss.SSS'
@@ -66,7 +65,7 @@ async function drawChart() {
             labels: lapCount,
             datasets: [{
                 label: ['Brecht'],
-                data: driverData,
+                data: driverData[0],
                 borderColor: ['#001eff'],
                 borderWidth: 1,
                 pointBorderColor: "#001eff",
@@ -79,10 +78,9 @@ async function drawChart() {
                 pointRadius: 1,
                 fill: false
             },
-            /* 
             {
                 label: ['Wout'],
-                data: lapTimeWout,
+                data: driverData[1],
                 borderColor: ['rgb(255, 174, 0)'],
                 borderWidth: 1,
                 pointBorderColor: "#ffae00",
@@ -97,7 +95,7 @@ async function drawChart() {
             },
             {
                 label: ['Gert'],
-                data: lapTimeGert,
+                data: driverData[2],
                 borderColor: ['rgb(0, 255, 229)'],
                 borderWidth: 1,
                 pointBorderColor: "#00ffe5",
@@ -110,7 +108,6 @@ async function drawChart() {
                 pointRadius: 1,
                 fill: false
             }
-            */
             ]
         },
         options: {
@@ -157,9 +154,13 @@ async function drawChart() {
                     },
                     scaleLabel: {
                         display: true,
-                        labelString: 'Time',
-                        color: 'white',
-                        fontSize: 12
+                        labelString: 'Time (in mms)',
+                        fontSize: 14
+                    },
+                    ticks: {
+                        drawTicks: false,
+                        min: 60000,
+                        max: 100000
                     }
                 }]
             }
